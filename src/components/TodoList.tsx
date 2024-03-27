@@ -1,40 +1,38 @@
 import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 import { Todo } from './../types/Todo';
-import { addTodo, getAllTodos, updateTodo, deleteTodo } from '../db-operations';
+import { useTodoReducer } from '../db-operations';
 import TodoItem from './TodoItem';
 
 function TodoList() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const { state, addTodo, getAllTodos, updateTodo, deleteTodo } =
+    useTodoReducer();
+
   const [input, setInput] = useState('');
 
   useEffect(() => {
     const fetchTodos = async () => {
       const todos = await getAllTodos();
       console.log(todos);
-      setTodos(todos);
     };
     fetchTodos();
   }, []);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!input) {
       return;
     }
 
-    // Add todo - både uppdatera listan och vår db
     const newTodo: Todo = {
       id: uuid(),
       text: input,
       completed: false,
     };
 
-    addTodo(newTodo); // Spara till backend - Create POST request
+    await addTodo(newTodo); // Updated to await
 
-    setTodos([...todos, newTodo]); // Uppdatera state
-
-    console.log(todos);
+    setInput(''); // Clear input after adding todo
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,23 +41,15 @@ function TodoList() {
   };
 
   const onComplete = (id: string) => {
-    // Uppdatera en todo från listan i frontend, todos (mappa igenom...och använd spread)
-    const newTodos = todos.map((todo: Todo) => {
-      if (todo.id === id) {
-        todo.completed = !todo.completed;
-        updateTodo(todo); // Synka till db för uppdaterade todos
-      }
-      return todo;
-    });
-    setTodos(newTodos); // Uppdatera state för todos
+    const updatedTodo = state.todos.find((todo) => todo.id === id);
+    if (updatedTodo) {
+      updatedTodo.completed = !updatedTodo.completed;
+      updateTodo(updatedTodo); // Updated to pass todo object directly
+    }
   };
 
   const onDelete = (id: string) => {
-    const updatedTodos = todos.filter((todo) => todo.id !== id); // Ta bort en todo från listan i frontend, todos
-
-    deleteTodo(id); // Synka till db för todos
-
-    setTodos(updatedTodos); // Uppdaterat state för todos
+    deleteTodo(id);
   };
 
   return (
@@ -76,16 +66,14 @@ function TodoList() {
         <button type='submit'>Add Todo</button>
       </form>
       <ul>
-        {todos.map((todo: Todo) => {
-          return (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onDelete={onDelete}
-              onComplete={onComplete}
-            />
-          );
-        })}
+        {state.todos.map((todo: Todo) => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            onDelete={onDelete}
+            onComplete={onComplete}
+          />
+        ))}
       </ul>
     </div>
   );
