@@ -1,3 +1,9 @@
 {
-  "todos": []
+  "todos": [
+    {
+      "id": "d0f5607d-9663-47ff-850f-4a5cb90a6279",
+      "text": "uyio",
+      "completed": false
+    }
+  ]
 }

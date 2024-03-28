@@ -11,7 +11,7 @@ const ActionTypes = {
   DELETE_TODO: 'DELETE_TODO',
 };
 
-// Define reducer function
+//todo     Define reducer function
 const reducer = (state, action) => {
   switch (action.type) {
     case ActionTypes.ADD_TODO:
@@ -35,38 +35,41 @@ const reducer = (state, action) => {
   }
 };
 
-// Initial state
+// Initial state for the array in db.json.
 const initialState = {
   todos: [],
 };
 
-// Hook to manage todos state using useReducer
+//todo     Reducer function, (Hook to manage todos state using useReducer() ).
 export const useTodoReducer = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState); // reducer is
 
-  // Action creators
+  // Eventhandler and Action creator
   const addTodo = async (todo: Todo) => {
     const response = await axios.post('http://localhost:3000/todos', todo);
-    dispatch({ type: ActionTypes.ADD_TODO, payload: response.data });
+    dispatch({ type: ActionTypes.ADD_TODO, payload: response.data }); // Dispactching an action-object
   };
 
+  // Eventhandler and Action creator
   const getAllTodos = async () => {
     const response = await axios.get('http://localhost:3000/todos');
-    dispatch({ type: ActionTypes.GET_ALL_TODOS, payload: response.data });
+    dispatch({ type: ActionTypes.GET_ALL_TODOS, payload: response.data }); // Dispactching an action-object
     return response.data; // Return the todos for use in useEffect
   };
 
+  // Eventhandler and Action creator
   const updateTodo = async (todo: Todo) => {
     const response = await axios.put(
       `http://localhost:3000/todos/${todo.id}`,
       todo
     );
-    dispatch({ type: ActionTypes.UPDATE_TODO, payload: response.data });
+    dispatch({ type: ActionTypes.UPDATE_TODO, payload: response.data }); // Dispactching an action-object
   };
 
+  // Eventhandler and Action creator
   const deleteTodo = async (id: string) => {
     await axios.delete(`http://localhost:3000/todos/${id}`);
-    dispatch({ type: ActionTypes.DELETE_TODO, payload: id });
+    dispatch({ type: ActionTypes.DELETE_TODO, payload: id }); // Dispactching an action-object
   };
 
   return { state, addTodo, getAllTodos, updateTodo, deleteTodo };
